@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/neilsarkar/exercise",
   "dependencies": {
-    "mongodb": "~2.0.47"
+    "mongodb": "~2.0.47",
+    "async": "~1.5.0",
+    "redis": "~2.2.5"
   }
 }
