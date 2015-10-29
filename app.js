@@ -1,6 +1,7 @@
-var async = require('async');
+var async   = require('async');
 var mongodb = require('mongodb');
-var redis = require('redis');
+var redis   = require('redis');
+var pg      = require('pg');
 
 async.parallel({
   mongo: function (cb) {
@@ -26,6 +27,24 @@ async.parallel({
 
       client.quit();
       cb();
+    })
+  },
+
+  postgres: function(cb) {
+    var url = 'postgres://outside:lookingin@halp/bluebell';
+
+    pg.connect(url, function(err, client, done) {
+      if( err ) { return cb(err); }
+
+      client.query("insert into hats (color, type, size) values ('blue', 'bowler', 3)", function(err, result) {
+        if( err ) { return cb(err); }
+        client.query('select * from hats order by id desc limit 1', function(err, result) {
+          if( err ) { return cb(err); }
+          if( result.rows[0].color != 'blue' || result.rows[0].type != 'bowler' || result.rows[0].size != 3 ) { return cb(new Error("Postgres row not inserted"))}
+          client.end();
+          cb();
+        })
+      });
     })
   }
 }, function(err, results) {
