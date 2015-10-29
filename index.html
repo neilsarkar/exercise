@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sup</title>
+
+    <style>* { box-sizing: border-box; font-family: Monospace; }</style>
+
+  </head>
+  <body>
+    <h1>Sup?</h1>
+    <form>
+      <textarea name="message"></textarea>
+      <input type="submit" />
+    </form>
+
+    <script>
+      document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var message = event.target.message.value;
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function() {
+          if( xhr.readyState == 4 ) {
+            if( xhr.responseText == "Mmkay." ) {
+              return window.location.reload();
+            }
+
+            alert(xhr.responseText);
+          }
+        }
+
+        xhr.open("POST", 'http://localhost:3000/message', true);
+        xhr.send();
+
+        return false;
+      })
+    </script>
+  </body>
+</html>
