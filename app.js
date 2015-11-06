@@ -1,10 +1,12 @@
-var async   = require('async');
-var mongodb = require('mongodb');
-var redis   = require('redis');
-var pg      = require('pg');
-var express = require('express');
-var app     = express();
+var async      = require('async');
+var mongodb    = require('mongodb');
+var redis      = require('redis');
+var pg         = require('pg');
+var express    = require('express');
+var bodyParser = require('body-parser');
+var app        = express();
 
+app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html', function(err) {
