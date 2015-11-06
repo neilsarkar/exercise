@@ -14,9 +14,36 @@
       <input type="submit" />
     </form>
 
+    <div class="js-mongo">
+      <h2>Mongo</h2>
+    </div>
+
+    <div class="js-redis">
+      <h2>Redis</h2>
+    </div>
+
+    <div class="js-postgres">
+      <h2>Postgres</h2>
+    </div>
+
+
     <script>
-      document.addEventListener('domloaded', function(event) {
-        var xhr = new XMLHttpRequest();
+      document.addEventListener('DOMContentLoaded', function(event) {
+        http({
+          path: '/messages'
+        }, function(err, payload) {
+          if( err || !payload ) { console.error(err, payload); return alert("something went wrong") }
+
+          Object.keys(payload).forEach(function(db) {
+            var div = document.querySelector('.js-'+db);
+            payload[db].forEach(function(message) {
+              var el = document.createElement('div');
+              el.innerHTML = message.message;
+
+              div.appendChild(el);
+            })
+          })
+        })
       })
 
       document.querySelector('form').addEventListener('submit', function(event) {
@@ -26,12 +53,12 @@
 
         http({
           method: "POST",
-          path: '/message',
+          path: '/messages',
           body: {
             message: message
           }
         }, function(err, response, xhr) {
-          if( response == "Mmkay." ) { return console.log("cool"); } //return window.location.reload();}
+          if( response.ok ) { return window.location.reload(); }
 
           window.alert("Nope.")
           console.error(response, xhr);
@@ -53,7 +80,16 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onreadystatechange = function() {
           if( xhr.readyState == 4 ) {
-            return cb(null, xhr.responseText, xhr);
+            var payload, error;
+            try {
+              payload = JSON.parse(xhr.responseText);
+            } catch(err) {
+              error = err;
+              payload = xhr.responseText;
+              return cb(err);
+            }
+
+            return cb(error, payload, xhr);
           }
         }
 

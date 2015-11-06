@@ -17,9 +17,9 @@ app.get('/', function (req, res) {
   })
 });
 
-app.post('/message', createMessage);
+app.post('/messages', createMessage);
 
-
+app.get('/messages', getMessages);
 
 var server = app.listen(3000, function () {
   var host = server.address().address;
@@ -81,6 +81,26 @@ function createMessage(req, res) {
   }, function(err, results) {
     if( err ) { return res.status(500).json({error: err}) }
 
-    res.send("Mmkay.");
+    res.json({ok: "Mmkay."});
+  })
+}
+
+function getMessages(req, res) {
+  async.parallel({
+    mongo: function(cb) {
+      return cb(null, [{message: 'hey'}])
+    },
+
+    redis: function(cb) {
+      return cb(null, [{message: 'hey'}])
+    },
+
+    postgres: function(cb) {
+      return cb(null, [{message: 'hey'}])
+    }
+  }, function(err, results) {
+    if( err ) { return res.status(500).json({error: err}); }
+
+    res.json(results);
   })
 }
