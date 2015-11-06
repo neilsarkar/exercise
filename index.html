@@ -26,7 +26,7 @@
 
         http({
           method: "POST",
-          url: 'http://localhost:3000/message',
+          path: '/message',
           body: {
             message: message
           }
@@ -43,7 +43,9 @@
       // options: method, url, body
       function http(options, cb) {
         if( !options.method ) { options.method = 'GET'; }
-        if( !options.url ) { return console.error("No url provided"); }
+        if( !options.path && !options.url ) { return console.error("No url provided"); }
+
+        options.url = options.url || window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + options.path;
 
         var xhr = new XMLHttpRequest();
 
