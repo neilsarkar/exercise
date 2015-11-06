@@ -92,7 +92,7 @@ function getMessages(req, res) {
       mongodb.MongoClient.connect(url, function(err, db) {
         if( err ) { return cb(err); }
 
-        db.collection('comments').find({}, function(err, messages) {
+        db.collection('comments').find({query: {}, $orderby: {created_at: -1}}, function(err, messages) {
           if( err ) { return cb(err); }
           db.close(function(err, ok) {
             if( err ) { return cb(err); }
