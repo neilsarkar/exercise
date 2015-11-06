@@ -41,7 +41,7 @@ function createMessage(req, res) {
         if( err ) { return cb(err); }
 
         db.collection('comments').insert({
-          message: message,
+          text: message,
           created_at: createdAt
         }, function(err, ok) {
           if( err ) { return cb(err); }
@@ -61,7 +61,7 @@ function createMessage(req, res) {
         return cb(err);
       })
 
-      client.lpush('comments', JSON.stringify({message: message, created_at: +createdAt}));
+      client.lpush('comments', JSON.stringify({text: message, created_at: +createdAt}));
       client.quit();
 
       if( !failed ) { cb(); }
@@ -88,15 +88,49 @@ function createMessage(req, res) {
 function getMessages(req, res) {
   async.parallel({
     mongo: function(cb) {
-      return cb(null, [{message: 'hey'}])
+      var url = 'mongodb://chicken:tetrazzini@mango:27019/porcelain';
+      mongodb.MongoClient.connect(url, function(err, db) {
+        if( err ) { return cb(err); }
+
+        db.collection('comments').find({}, function(err, messages) {
+          if( err ) { return cb(err); }
+          db.close(function(err, ok) {
+            if( err ) { return cb(err); }
+            return cb(null, messages);
+          })
+        })
+      })
     },
 
     redis: function(cb) {
-      return cb(null, [{message: 'hey'}])
+      var url = 'redis://amber:energy@raspberry:6380';
+      var client = redis.createClient(url);
+      var failed = false;
+      client.on('error', function(err) {
+        if( failed ) { return; }
+        failed = true;
+        client.quit();
+        return cb(err);
+      })
+
+      client.lrange('comments', 0, -1, function(err, messages) {
+        client.quit();
+        if( !failed ) { return cb(err, messages); }
+      })
     },
 
     postgres: function(cb) {
-      return cb(null, [{message: 'hey'}])
+      var url = 'postgres://outside:lookingin@pineapple/bluebell';
+
+      pg.connect(url, function(err, client, done) {
+        if( err ) { return cb(err); }
+
+        client.query('select * from comments order by created_at desc', function(err, result) {
+          if( err ) { return cb(err); }
+          client.end();
+          cb(err, result.rows);
+        })
+      })
     }
   }, function(err, results) {
     if( err ) { return res.status(500).json({error: err}); }

@@ -38,7 +38,7 @@
             var div = document.querySelector('.js-'+db);
             payload[db].forEach(function(message) {
               var el = document.createElement('div');
-              el.innerHTML = message.message;
+              el.innerHTML = message.text;
 
               div.appendChild(el);
             })
